@@ -27,17 +27,23 @@ app.use((req, res, next) => {
 
 app.get("/tskonutihbariagent/api/signed-url", async (req, res) => {
   try {
-    const agentId = process.env.VITE_UNITE_AGENT_ID;
+    let agentId = process.env.VITE_UNITE_DEFAULT_AGENT_ID;
     const apiKey = process.env.VITE_UNITE_API_KEY;
-
-    
 
     if (!agentId || !apiKey) {
       return res.status(500).json({ error: "Agent kimlik bilgileri eksik." });
     }
 
     const allowedToken = req.query.token;
-    console.log("*** run 1: ", allowedToken, agentId);
+
+    const isDamageFixed = req.query.isDamageFixed === true;
+    if (isDamageFixed) {
+      agentId = process.env.VITE_UNITE_REPAIRED_AGENT_ID;
+    } else if (isDamageFixed === false) {
+      agentId = process.env.VITE_UNITE_NOT_REPAIRED_AGENT_ID;
+    } else {
+      agentId = process.env.VITE_UNITE_DEFAULT_AGENT_ID;
+    }
 
     const expectedToken = process.env.VITE_ALLOWED_TOKEN;
     if (allowedToken !== expectedToken) {
@@ -60,7 +66,7 @@ app.get("/tskonutihbariagent/api/signed-url", async (req, res) => {
     }
 
     const data = await response.json();
-    
+
     if (!data?.token) {
       return res.status(500).json({
         error: "Signed URL yanıtı geçersiz.",

@@ -31,7 +31,7 @@ const parseError = (error) => {
 };
 
 function App() {
-  const agentId = import.meta.env.VITE_UNITE_AGENT_ID; // import.meta.env.VITE_UNITE_AGENT_ID;
+  const agentId = import.meta.env.VITE_UNITE_NOT_REPAIRED_AGENT_ID; // import.meta.env.VITE_UNITE_AGENT_ID;
   const isDevEnv = import.meta.env.VITE_DEV_ENV === "DEV"; // import.meta.env.VITE_DEV_ENV === "DEV";
 
   const [error, setError] = useState("");
@@ -164,77 +164,80 @@ function App() {
     [iframeParentOrigin],
   );
 
-  const obtainSignedUrl = useCallback(async () => {
-    if (!agentId) {
-      setError("UNITE_AGENT_ID ortam değişkenini tanımlayın.");
-      return null;
-    }
-    // if (isDevEnv) {
-    //   setError("VITE_UNITE_API_KEY ortam değişkenini tanımlayın.");
-    //   return null;
-    // }
-    if (isFetchingSignedUrl) return null;
-
-    setIsFetchingSignedUrl(true);
-    try {
-      if (isDevEnv) {
-        console.log("*** run ");
-        const url = `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${agentId}&connection=${CONNECTION}`;
-        const response = await fetch(url, {
-          headers: {
-            "xi-api-key": import.meta.env.VITE_UNITE_API_KEY,
-          },
-        });
-        if (!response.ok) {
-          const details = await response.text();
-          console.error("DEV signed URL error body:", details);
-          throw new Error(
-            `Signed URL isteği başarısız oldu. Detay: ${
-              details || response.status
-            }`,
-          );
-        }
-        const data = await response.json();
-        const signed = data?.token || data?.token; // tolerate both
-        if (!signed)
-          throw new Error(
-            "Signed URL yanıtı geçersiz (signed_url/signedUrl yok).",
-          );
-        return signed;
-      } else {
-        console.log("*** else");
-        const url = `/tsarachasarbildirimiagent/api/signed-url?token=${
-          import.meta.env.VITE_ALLOWED_TOKEN
-        }&connection=${CONNECTION}`;
-        const response = await fetch(url, {
-          headers: { Accept: "application/json" },
-        });
-
-        if (!response.ok) {
-          const details = await response.text();
-          console.error("PROD signed URL error body:", details);
-          throw new Error(
-            `Signed URL isteği başarısız oldu. Durum kodu: ${response.status}`,
-          );
-        }
-
-        const data = await response.json();
-        console.log("*** response: ", data);
-        const signed = data?.token || data?.token; // tolerate both
-        if (!signed)
-          throw new Error(
-            "Signed URL yanıtı geçersiz (signedUrl/signed_url yok).",
-          );
-        setError("");
-        return signed;
+  const obtainSignedUrl = useCallback(
+    async (isDamageFixed) => {
+      if (!agentId) {
+        setError("UNITE_AGENT_ID ortam değişkenini tanımlayın.");
+        return null;
       }
-    } catch (fetchError) {
-      setError(parseError(fetchError));
-      return null;
-    } finally {
-      setIsFetchingSignedUrl(false);
-    }
-  }, [agentId, isDevEnv, isFetchingSignedUrl]);
+      // if (isDevEnv) {
+      //   setError("VITE_UNITE_API_KEY ortam değişkenini tanımlayın.");
+      //   return null;
+      // }
+      if (isFetchingSignedUrl) return null;
+
+      setIsFetchingSignedUrl(true);
+      try {
+        if (isDevEnv) {
+          console.log("*** run: ", isDamageFixed);
+          const url = `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${agentId}&connection=${CONNECTION}`;
+          const response = await fetch(url, {
+            headers: {
+              "xi-api-key": import.meta.env.VITE_UNITE_API_KEY,
+            },
+          });
+          if (!response.ok) {
+            const details = await response.text();
+            console.error("DEV signed URL error body:", details);
+            throw new Error(
+              `Signed URL isteği başarısız oldu. Detay: ${
+                details || response.status
+              }`,
+            );
+          }
+          const data = await response.json();
+          const signed = data?.token || data?.token; // tolerate both
+          if (!signed)
+            throw new Error(
+              "Signed URL yanıtı geçersiz (signed_url/signedUrl yok).",
+            );
+          return signed;
+        } else {
+          console.log("*** else");
+          const url = `/tsarachasarbildirimiagent/api/signed-url?token=${
+            import.meta.env.VITE_ALLOWED_TOKEN
+          }&isDamageFixed=${isDamageFixed}&connection=${CONNECTION}`;
+          const response = await fetch(url, {
+            headers: { Accept: "application/json" },
+          });
+
+          if (!response.ok) {
+            const details = await response.text();
+            console.error("PROD signed URL error body:", details);
+            throw new Error(
+              `Signed URL isteği başarısız oldu. Durum kodu: ${response.status}`,
+            );
+          }
+
+          const data = await response.json();
+          console.log("*** response: ", data);
+          const signed = data?.token || data?.token; // tolerate both
+          if (!signed)
+            throw new Error(
+              "Signed URL yanıtı geçersiz (signedUrl/signed_url yok).",
+            );
+          setError("");
+          return signed;
+        }
+      } catch (fetchError) {
+        setError(parseError(fetchError));
+        return null;
+      } finally {
+        setIsFetchingSignedUrl(false);
+      }
+    },
+    [agentId, isDevEnv, isFetchingSignedUrl],
+  );
 
   const handleRedirectTool = useCallback(
     async (navigationObj) => {
@@ -476,7 +479,7 @@ function App() {
 
     try {
       const payload = userData;
-      const freshSignedUrl = await obtainSignedUrl();
+      const freshSignedUrl = await obtainSignedUrl(payload?.isDamageFixed);
       if (!freshSignedUrl) {
         setIsStarting(false);
         return;
@@ -488,7 +491,7 @@ function App() {
         connectionType: "webrtc",
         dynamicVariables: {
           user_name: payload?.user?.name || "",
-          damageCause: JSON.stringify(payload?.damageCause) || "",
+          damageCause: JSON.stringify(payload?.damageReason) || "",
         },
       });
     } catch (startError) {
