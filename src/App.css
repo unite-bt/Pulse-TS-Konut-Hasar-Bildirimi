@@ -1,0 +1,515 @@
+.app--blurred {
+  display: flex;
+  justify-content: center;
+}
+.app__background {
+  position: absolute;
+  inset: 0;
+  /* background: radial-gradient(
+    circle at 20% 20%,
+    rgba(125, 140, 255, 0.24),
+    rgba(10, 13, 24, 0.95)
+  ); */
+  z-index: 0;
+}
+.app__foreground {
+  position: relative;
+  width: 100%;
+}
+.app {
+  display: flex;
+  justify-content: center;
+}
+
+.app__foreground {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.assistant-shell {
+  position: relative;
+  z-index: 1;
+}
+@keyframes driftDots {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-48px, 48px, 0);
+  }
+}
+
+@keyframes ringPulseOuter {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+  }
+}
+
+@keyframes ringPulseInner {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.06);
+    opacity: 0.98;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes micGlow {
+  0% {
+    box-shadow: 0 12px 22px rgba(49, 109, 255, 0.25);
+  }
+  100% {
+    box-shadow: 0 18px 38px rgba(49, 109, 255, 0.4);
+  }
+}
+
+@keyframes voiceRingPrimaryPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes voiceRingSecondaryPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.08);
+    opacity: 0.95;
+  }
+}
+
+@keyframes voiceRingTertiaryPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.06);
+    opacity: 0.85;
+  }
+}
+
+@keyframes micIdleWave {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Root layout */
+.app {
+  min-height: 100vh;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: end;
+  align-items: end;
+  position: absolute;
+  bottom: 0;
+}
+
+#root {
+  width: 100% !important;
+  min-height: 100vh;
+}
+
+body.embedded-chat .app {
+  min-height: 100vh;
+  padding: 0;
+  width: 100%;
+}
+
+.assistant-shell {
+  width: 100%;
+  min-height: 100vh;
+  height: 100%;
+  /* min-height: 35vh; */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  margin: 0;
+  border-radius: 16px 16px 0 0;
+  position: absolute;
+  bottom: 0;
+  z-index: 2;
+  filter: none;
+  backdrop-filter: none;
+}
+
+.app--blurred {
+  position: relative;
+}
+
+.app--blurred .app__background {
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+.app--blurred .app__foreground,
+.app--blurred .assistant-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.assistant-shell__grabber {
+  /* margin-top: 8px; */
+  /* height: 3px; */
+  /* width: 70px; */
+  /* border-top: 3px solid #e4eaf0; */
+  /* border-width: 3px; */
+  /* TODO: duruma göre buradan sadece border rengini yorum satırı yap gerisini açık bırak */
+  width: auto;
+  height: auto;
+}
+
+.assistant-shell__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.assistant-shell__visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: space-between; */
+  gap: 20px;
+}
+
+.assistant-shell__status {
+  margin-top: 35px;
+  /* font-family: "Avenir Next";
+  font-style: "medium";
+  font-weight: 500;
+  color: #747474;
+  font-size: 16px; */
+
+  font-family: "Avenir Next";
+  font-weight: 500;
+  font-style: Medium;
+  color: #747474;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -1%;
+  vertical-align: middle;
+}
+
+.sky-banner {
+  background-color: white;
+  width: 100%;
+  height: 180px;
+}
+
+.sky-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sky-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.sky-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.voice-card {
+  position: relative;
+  width: 100%;
+  background: #ffffff;
+  padding: 32px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  box-shadow: none;
+  flex-grow: 1;
+  border-radius: 20px 20px;
+  border: 0px solid white;
+}
+
+.voice-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4b5e8a;
+}
+
+.voice-visual {
+  position: relative;
+  width: 200px;
+  height: auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* mikrofon aşağı yukarı hareketi */
+  /* animation: micIdleWave 6s ease-in-out infinite; */
+}
+
+/* Removed old ring styles */
+
+.voice-ring-primary,
+.voice-ring-secondary,
+.voice-ring-tertiary {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
+}
+
+.voice-ring-primary {
+  width: calc(80px + 18px);
+  height: calc(80px + 18px);
+  border: 1px solid #00afd280;
+}
+
+.voice-ring-primary {
+  width: calc(80px + 18px);
+  height: calc(80px + 18px);
+  border: 1px solid #00afd280;
+}
+
+.voice-ring-secondary {
+  width: calc(80px + 50px);
+  height: calc(80px + 50px);
+  border: 1px solid #00afd240;
+}
+
+.voice-ring-tertiary {
+  width: calc(80px + 82px);
+  height: calc(80px + 82px);
+  border: 1px solid #00afd21a;
+}
+
+.voice-visual.ring-active .voice-ring-primary {
+  animation: voiceRingPrimaryPulse 1.8s ease-in-out infinite;
+}
+
+.voice-visual.ring-active .voice-ring-secondary {
+  animation: voiceRingSecondaryPulse 1.8s ease-in-out infinite;
+}
+
+.voice-visual.ring-active .voice-ring-tertiary {
+  animation: voiceRingTertiaryPulse 1.8s ease-in-out infinite;
+}
+
+.voice-mic {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f5f8ff 0%, #d9e8ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 18px 34px rgba(55, 116, 255, 0.25);
+}
+
+.voice-mic::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border: 1px solid #00afd280;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.voice-mic::after {
+  inset: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(93, 165, 255, 0.3),
+    rgba(255, 255, 255, 0.65)
+  );
+  filter: blur(12px);
+  opacity: 0.4;
+}
+.voice-mic::after {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(93, 165, 255, 0.3),
+    rgba(255, 255, 255, 0.65)
+  );
+  filter: blur(12px);
+  opacity: 0.4;
+}
+
+.voice-mic svg {
+  fill: #1e3a8a;
+  position: relative;
+  z-index: 1;
+}
+
+.voice-visual.speaking .ring-outer,
+.voice-visual.listening .ring-outer {
+  animation: ringPulseOuter 3s ease-in-out infinite;
+}
+
+.voice-visual.speaking .ring-inner,
+.voice-visual.listening .ring-inner {
+  animation: ringPulseInner 3s ease-in-out infinite;
+}
+
+.voice-visual.speaking .voice-mic {
+  animation: micGlow 1.6s ease-in-out infinite alternate;
+}
+
+.voice-visual.connecting .ring-outer {
+  animation: ringPulseOuter 4.2s ease-in-out infinite;
+}
+
+.voice-visual.connecting .ring-inner {
+  animation: ringPulseInner 4.2s ease-in-out infinite;
+}
+
+.voice-visual.muted .ring-outer,
+.voice-visual.muted .ring-inner {
+  animation: none;
+  opacity: 0.55;
+}
+
+.voice-status {
+  font-size: 0.95rem;
+  color: #4c5f92;
+  text-align: center;
+}
+
+.voice-action {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 16px 18px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  background: linear-gradient(to right, #002561, #00b1cd);
+  margin: 0;
+  box-sizing: border-box;
+
+  font-family: "Avenir Next";
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -1%;
+  vertical-align: middle;
+}
+
+.voice-action-wrapper {
+  width: 100%;
+  padding: 16px;
+  padding-top: 8px;
+  padding-bottom: 30px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.error-banner {
+  width: 100%;
+  background: rgba(255, 111, 141, 0.12);
+  border: 1px solid rgba(255, 111, 141, 0.28);
+  color: #c53046;
+  border-radius: 18px;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .assistant-shell {
+    width: 100%;
+  }
+
+  .voice-card,
+  .voice-action,
+  .error-banner {
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .sky-banner {
+    height: 160px;
+    border-radius: 24px;
+    background-color: white;
+  }
+
+  .voice-card {
+    padding: 42px 18px 36px;
+    /* border-radius: 24px; */
+    margin-top: -64px;
+  }
+
+  .voice-action {
+    width: 100%;
+  }
+}
+
+@media (min-width: 900px) {
+  .voice-card {
+    margin-top: -84px;
+  }
+}
