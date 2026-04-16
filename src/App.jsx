@@ -31,7 +31,7 @@ const parseError = (error) => {
 };
 
 function App() {
-  const agentId = import.meta.env.VITE_UNITE_NOT_REPAIRED_AGENT_ID; // import.meta.env.VITE_UNITE_AGENT_ID;
+  // const agentId = import.meta.env.VITE_UNITE_NOT_REPAIRED_AGENT_ID; // import.meta.env.VITE_UNITE_AGENT_ID;
   const isDevEnv = import.meta.env.VITE_DEV_ENV === "DEV"; // import.meta.env.VITE_DEV_ENV === "DEV";
 
   const [error, setError] = useState("");
@@ -43,6 +43,10 @@ function App() {
   const endSessionRef = useRef(async () => {});
   const lastStatusMessageRef = useRef("Başlatılıyor");
   const [isFetchingSignedUrl, setIsFetchingSignedUrl] = useState(false);
+  const [agentId, setAgentId] = useState(
+    import.meta.env.VITE_UNITE_DEFAULT_AGENT_ID,
+  );
+  const [agentType, setAgentType] = useState("default");
 
   const [userData, setUserData] = useState({});
   console.log("*** user data: ", userData);
@@ -204,7 +208,7 @@ function App() {
           return signed;
         } else {
           console.log("*** else");
-          const url = `/tsarachasarbildirimiagent/api/signed-url?token=${
+          const url = `/tskonutihbariagentv2/api/signed-url?token=${
             import.meta.env.VITE_ALLOWED_TOKEN
           }&isDamageFixed=${isDamageFixed}&connection=${CONNECTION}`;
           const response = await fetch(url, {
@@ -250,30 +254,85 @@ function App() {
   );
 
   const clientTools = useMemo(() => {
-    return {
-      ts_arac_hasar_bildirimi_client_tool_dev: async (props) => {
-        console.log("*** props: ", props);
-        const payload = {
-          damageDate: props?.damageDate || null,
-          damageTime: props?.damageTime || null,
-          damageCause:
-            typeof props?.damageCause === "string"
-              ? JSON.parse(props?.damageCause)
-              : props?.damageCause || null,
-          city: props?.cityid,
-          town: props?.townid,
-          price: Number(props?.price) || null,
-          totalPrice: Number(props?.totalPrice) || null,
-          invoiceDate: props.invoiceDate || null,
-          garageVKN: props.garageVKN || null,
-          damageOccurrence: props.damageOccurrence || null,
+    switch (agentType) {
+      case "repaired":
+        return {
+          ts_konut_hasar_bildirimi_client_tool_onarildi_dev: async (props) => {
+            console.log("*** props: ", props);
+            const payload = {
+              damageDate: props?.damageDate || null,
+              damageTime: props?.damageTime || null,
+              damageCause:
+                typeof props?.damageCause === "string"
+                  ? JSON.parse(props?.damageCause)
+                  : props?.damageCause || null,
+              city: props?.cityid,
+              town: props?.townid,
+              price: Number(props?.price) || null,
+              totalPrice: Number(props?.totalPrice) || null,
+              invoiceDate: props.invoiceDate || null,
+              garageVKN: props.garageVKN || null,
+              damageOccurrence: props.damageOccurrence || null,
+            };
+            const navigationProps = payload;
+            const result = await handleRedirectTool(navigationProps);
+            return { ok: true, result };
+          },
         };
-        const navigationProps = payload;
-        const result = await handleRedirectTool(navigationProps);
-        return { ok: true, result };
-      },
-    };
-  }, [handleRedirectTool]);
+
+      case "not_repaired":
+        return {
+          ts_konut_hasar_bildirimi_client_tool_onarilmadi_dev: async (
+            props,
+          ) => {
+            console.log("*** props: ", props);
+            const payload = {
+              damageDate: props?.damageDate || null,
+              damageTime: props?.damageTime || null,
+              damageCause:
+                typeof props?.damageCause === "string"
+                  ? JSON.parse(props?.damageCause)
+                  : props?.damageCause || null,
+              city: props?.cityid,
+              town: props?.townid,
+              price: Number(props?.price) || null,
+              totalPrice: Number(props?.totalPrice) || null,
+              invoiceDate: props.invoiceDate || null,
+              garageVKN: props.garageVKN || null,
+              damageOccurrence: props.damageOccurrence || null,
+            };
+            const navigationProps = payload;
+            const result = await handleRedirectTool(navigationProps);
+            return { ok: true, result };
+          },
+        };
+
+      default:
+        return {
+          ts_konut_hasar_bildirimi_client_tool: async (props) => {
+            console.log("*** props: ", props);
+            const payload = {
+              damageDate: props?.damageDate || null,
+              damageTime: props?.damageTime || null,
+              damageCause:
+                typeof props?.damageCause === "string"
+                  ? JSON.parse(props?.damageCause)
+                  : props?.damageCause || null,
+              city: props?.cityid,
+              town: props?.townid,
+              price: Number(props?.price) || null,
+              totalPrice: Number(props?.totalPrice) || null,
+              invoiceDate: props.invoiceDate || null,
+              garageVKN: props.garageVKN || null,
+              damageOccurrence: props.damageOccurrence || null,
+            };
+            const navigationProps = payload;
+            const result = await handleRedirectTool(navigationProps);
+            return { ok: true, result };
+          },
+        };
+    }
+  }, [handleRedirectTool, agentType]);
 
   const handleIncomingEvent = useCallback(
     (event) => {
@@ -480,6 +539,16 @@ function App() {
     try {
       const payload = userData;
       const freshSignedUrl = await obtainSignedUrl(payload?.isDamageFixed);
+      if (payload?.isDamageFixed === true) {
+        setAgentType("repaired");
+        setAgentId(import.meta.env.VITE_UNITE_REPAIRED_AGENT_ID);
+      } else if (payload?.isDamageFixed === false) {
+        setAgentType("not_repaired");
+        setAgentId(import.meta.env.VITE_UNITE_NOT_REPAIRED_AGENT_ID);
+      } else {
+        setAgentType("default");
+        setAgentId(import.meta.env.VITE_UNITE_DEFAULT_AGENT_ID);
+      }
       if (!freshSignedUrl) {
         setIsStarting(false);
         return;

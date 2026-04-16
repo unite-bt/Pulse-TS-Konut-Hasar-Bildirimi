@@ -25,7 +25,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/tskonutihbariagent/api/signed-url", async (req, res) => {
+app.get("/tskonutihbariagentv2/api/signed-url", async (req, res) => {
   try {
     let agentId = process.env.VITE_UNITE_DEFAULT_AGENT_ID;
     const apiKey = process.env.VITE_UNITE_API_KEY;
