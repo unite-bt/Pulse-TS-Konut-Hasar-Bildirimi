@@ -15,9 +15,10 @@ export default defineConfig({
       "pulse.unitebt.com",
       "localhost",
       "5b19-88-240-155-173.ngrok-free.app",
+      "https://99c5-85-98-18-181.ngrok-free.app",
     ],
   },
   build: {
-    assetsDir: "assets-car-damage-forms",
+    assetsDir: "assets-residential-damage-report",
   },
 });
