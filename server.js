@@ -25,7 +25,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/tskonutihbariagentv2/api/signed-url", async (req, res) => {
+app.get("/tskonutihbariagent/api/signed-url", async (req, res) => {
   try {
     let agentId = process.env.VITE_UNITE_DEFAULT_AGENT_ID;
     const apiKey = process.env.VITE_UNITE_API_KEY;
@@ -84,10 +84,7 @@ app.get("/tskonutihbariagentv2/api/signed-url", async (req, res) => {
 app.use(express.static(path.join(__dirname, "dist")));
 
 app.use((req, res, next) => {
-  if (
-    req.method === "GET" &&
-    !req.path.startsWith("/tsmobileredirectagent/api")
-  ) {
+  if (req.method === "GET" && !req.path.startsWith("/tskonutihbariagent/api")) {
     return res.sendFile(path.join(__dirname, "dist", "index.html"));
   }
   next();

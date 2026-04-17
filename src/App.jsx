@@ -208,7 +208,7 @@ function App() {
           return signed;
         } else {
           console.log("*** else");
-          const url = `/tskonutihbariagentv2/api/signed-url?token=${
+          const url = `/tskonutihbariagent/api/signed-url?token=${
             import.meta.env.VITE_ALLOWED_TOKEN
           }&isDamageFixed=${isDamageFixed}&connection=${CONNECTION}`;
           const response = await fetch(url, {
