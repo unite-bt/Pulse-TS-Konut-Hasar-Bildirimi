@@ -262,10 +262,10 @@ function App() {
             const payload = {
               damageDate: props?.damageDate || null,
               damageTime: props?.damageTime || null,
-              damageCause:
-                typeof props?.damageCause === "string"
-                  ? JSON.parse(props?.damageCause)
-                  : props?.damageCause || null,
+              damageReason:
+                typeof props?.damageReason === "string"
+                  ? JSON.parse(props?.damageReason)
+                  : props?.damageReason || null,
               city: props?.cityid,
               town: props?.townid,
               price: Number(props?.price) || null,
@@ -289,10 +289,10 @@ function App() {
             const payload = {
               damageDate: props?.damageDate || null,
               damageTime: props?.damageTime || null,
-              damageCause:
-                typeof props?.damageCause === "string"
-                  ? JSON.parse(props?.damageCause)
-                  : props?.damageCause || null,
+              damageReason:
+                typeof props?.damageReason === "string"
+                  ? JSON.parse(props?.damageReason)
+                  : props?.damageReason || null,
               city: props?.cityid,
               town: props?.townid,
               price: Number(props?.price) || null,
@@ -314,10 +314,10 @@ function App() {
             const payload = {
               damageDate: props?.damageDate || null,
               damageTime: props?.damageTime || null,
-              damageCause:
-                typeof props?.damageCause === "string"
-                  ? JSON.parse(props?.damageCause)
-                  : props?.damageCause || null,
+              damageReason:
+                typeof props?.damageReason === "string"
+                  ? JSON.parse(props?.damageReason)
+                  : props?.damageReason || null,
               city: props?.cityid,
               town: props?.townid,
               price: Number(props?.price) || null,
@@ -560,7 +560,7 @@ function App() {
         connectionType: "webrtc",
         dynamicVariables: {
           user_name: payload?.user?.name || "",
-          damageCause: JSON.stringify(payload?.damageReason) || "",
+          damageReason: JSON.stringify(payload?.damageReason) || "",
         },
       });
     } catch (startError) {
