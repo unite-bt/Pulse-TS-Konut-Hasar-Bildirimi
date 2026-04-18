@@ -268,11 +268,9 @@ function App() {
                   : props?.damageReason || null,
               city: props?.cityid,
               town: props?.townid,
-              price: Number(props?.price) || null,
-              totalPrice: Number(props?.totalPrice) || null,
-              invoiceDate: props.invoiceDate || null,
-              garageVKN: props.garageVKN || null,
-              damageOccurrence: props.damageOccurrence || null,
+              price: props?.price || null,
+              totalPrice: props?.totalPrice || null,
+              description: props?.description || null,
             };
             const navigationProps = payload;
             const result = await handleRedirectTool(navigationProps);
@@ -295,11 +293,9 @@ function App() {
                   : props?.damageReason || null,
               city: props?.cityid,
               town: props?.townid,
-              price: Number(props?.price) || null,
-              totalPrice: Number(props?.totalPrice) || null,
-              invoiceDate: props.invoiceDate || null,
-              garageVKN: props.garageVKN || null,
-              damageOccurrence: props.damageOccurrence || null,
+              price: props?.price || null,
+              totalPrice: props?.totalPrice || null,
+              description: props?.description || null,
             };
             const navigationProps = payload;
             const result = await handleRedirectTool(navigationProps);
@@ -309,22 +305,23 @@ function App() {
 
       default:
         return {
-          ts_konut_hasar_bildirimi_client_tool: async (props) => {
+          ts_konut_hasar_bildirimi_client_tool_dev: async (props) => {
             console.log("*** props: ", props);
             const payload = {
               damageDate: props?.damageDate || null,
               damageTime: props?.damageTime || null,
-              damageReason:
-                typeof props?.damageReason === "string"
-                  ? JSON.parse(props?.damageReason)
-                  : props?.damageReason || null,
+              price: props?.price || null,
+              totalPrice: props?.totalPrice || null,
+              damageCause:
+                typeof props?.damageCause === "string"
+                  ? JSON.parse(props?.damageCause)
+                  : props?.damageCause || null,
               city: props?.cityid,
               town: props?.townid,
-              price: Number(props?.price) || null,
-              totalPrice: Number(props?.totalPrice) || null,
-              invoiceDate: props.invoiceDate || null,
-              garageVKN: props.garageVKN || null,
-              damageOccurrence: props.damageOccurrence || null,
+              // elabs tarafından gelen ama ts tarafına şimdilik gönderilmeyen iki parametre
+              // cityName: props?.cityname || null,
+              // townName: props?.townname || null,
+              description: props?.description || null,
             };
             const navigationProps = payload;
             const result = await handleRedirectTool(navigationProps);
