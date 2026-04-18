@@ -262,14 +262,11 @@ function App() {
             const payload = {
               damageDate: props?.damageDate || null,
               damageTime: props?.damageTime || null,
+              totalPrice: props?.totalPrice || null,
               damageReason:
                 typeof props?.damageReason === "string"
                   ? JSON.parse(props?.damageReason)
                   : props?.damageReason || null,
-              city: props?.cityid,
-              town: props?.townid,
-              price: props?.price || null,
-              totalPrice: props?.totalPrice || null,
               description: props?.description || null,
             };
             const navigationProps = payload;
@@ -287,14 +284,11 @@ function App() {
             const payload = {
               damageDate: props?.damageDate || null,
               damageTime: props?.damageTime || null,
+              totalPrice: props?.totalPrice || null,
               damageReason:
                 typeof props?.damageReason === "string"
                   ? JSON.parse(props?.damageReason)
                   : props?.damageReason || null,
-              city: props?.cityid,
-              town: props?.townid,
-              price: props?.price || null,
-              totalPrice: props?.totalPrice || null,
               description: props?.description || null,
             };
             const navigationProps = payload;
