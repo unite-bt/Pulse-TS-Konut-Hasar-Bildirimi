@@ -171,8 +171,9 @@ function App() {
   );
 
   const obtainSignedUrl = useCallback(
-    async (isDamageFixed) => {
-      if (!agentId) {
+    async (isDamageFixed, targetAgentId) => {
+      const resolvedAgentId = targetAgentId || agentId;
+      if (!resolvedAgentId) {
         setError("UNITE_AGENT_ID ortam değişkenini tanımlayın.");
         return null;
       }
@@ -186,7 +187,7 @@ function App() {
       try {
         if (isDevEnv) {
           console.log("*** run: ", isDamageFixed);
-          const url = `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${agentId}&connection=${CONNECTION}`;
+          const url = `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${resolvedAgentId}&connection=${CONNECTION}`;
           const response = await fetch(url, {
             headers: {
               "xi-api-key": import.meta.env.VITE_UNITE_API_KEY,
@@ -537,14 +538,14 @@ function App() {
 
     try {
       const payload = userData;
-      const freshSignedUrl = await obtainSignedUrl(payload?.isDamageFixed);
-      if (payload?.isDamageFixed === "true") {
-        setAgentId(import.meta.env.VITE_UNITE_REPAIRED_AGENT_ID);
-      } else if (payload?.isDamageFixed === "false") {
-        setAgentId(import.meta.env.VITE_UNITE_NOT_REPAIRED_AGENT_ID);
-      } else {
-        setAgentId(import.meta.env.VITE_UNITE_DEFAULT_AGENT_ID);
-      }
+      const derivedAgentId =
+        payload?.isDamageFixed === true
+          ? import.meta.env.VITE_UNITE_REPAIRED_AGENT_ID
+          : payload?.isDamageFixed === false
+            ? import.meta.env.VITE_UNITE_NOT_REPAIRED_AGENT_ID
+            : import.meta.env.VITE_UNITE_DEFAULT_AGENT_ID;
+      setAgentId(derivedAgentId);
+      const freshSignedUrl = await obtainSignedUrl(payload?.isDamageFixed, derivedAgentId);
       if (!freshSignedUrl) {
         setIsStarting(false);
         return;
