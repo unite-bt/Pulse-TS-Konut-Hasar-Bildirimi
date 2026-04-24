@@ -16,6 +16,8 @@ export default defineConfig({
       "localhost",
       "5b19-88-240-155-173.ngrok-free.app",
       "https://99c5-85-98-18-181.ngrok-free.app",
+      "localhost:5173",
+      "7833-31-206-203-23.ngrok-free.app",
     ],
   },
   build: {

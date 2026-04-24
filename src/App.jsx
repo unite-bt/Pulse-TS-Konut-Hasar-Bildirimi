@@ -12,9 +12,13 @@ const RN_END_CALL_EVENT = Object.freeze({
   type: "end-call",
   eventType: "end_call",
 });
-const RN_END_CALL_EXCEPTION_EVENT = Object.freeze({
+const buildExceptionEvent = (errorMessage) => ({
   type: "end-call",
   eventType: "exception",
+  error:
+    typeof errorMessage === "string" && errorMessage
+      ? errorMessage
+      : "Beklenmeyen bir hata oluştu.",
 });
 
 const parseError = (error) => {
@@ -46,8 +50,6 @@ function App() {
   const [agentId, setAgentId] = useState(
     import.meta.env.VITE_UNITE_DEFAULT_AGENT_ID,
   );
-  const [agentType, setAgentType] = useState("default");
-
   const [userData, setUserData] = useState({});
   console.log("*** user data: ", userData);
   const [hasRnPayload, setHasRnPayload] = useState(isDevEnv);
@@ -169,8 +171,9 @@ function App() {
   );
 
   const obtainSignedUrl = useCallback(
-    async (isDamageFixed) => {
-      if (!agentId) {
+    async (isDamageFixed, targetAgentId) => {
+      const resolvedAgentId = targetAgentId || agentId;
+      if (!resolvedAgentId) {
         setError("UNITE_AGENT_ID ortam değişkenini tanımlayın.");
         return null;
       }
@@ -184,7 +187,7 @@ function App() {
       try {
         if (isDevEnv) {
           console.log("*** run: ", isDamageFixed);
-          const url = `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${agentId}&connection=${CONNECTION}`;
+          const url = `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${resolvedAgentId}&connection=${CONNECTION}`;
           const response = await fetch(url, {
             headers: {
               "xi-api-key": import.meta.env.VITE_UNITE_API_KEY,
@@ -235,7 +238,7 @@ function App() {
         }
       } catch (fetchError) {
         setError(parseError(fetchError));
-        return null;
+        throw fetchError;
       } finally {
         setIsFetchingSignedUrl(false);
       }
@@ -253,77 +256,82 @@ function App() {
     [redirectToCancelPage],
   );
 
-  const clientTools = useMemo(() => {
-    switch (agentType) {
-      case "repaired":
-        return {
-          ts_konut_hasar_bildirimi_client_tool_onarildi_dev: async (props) => {
-            console.log("*** props: ", props);
-            const payload = {
-              damageDate: props?.damageDate || null,
-              damageTime: props?.damageTime || null,
-              totalPrice: props?.totalPrice || null,
-              damageReason:
-                typeof props?.damageReason === "string"
-                  ? JSON.parse(props?.damageReason)
-                  : props?.damageReason || null,
-              description: props?.description || null,
-            };
-            const navigationProps = payload;
-            const result = await handleRedirectTool(navigationProps);
-            return { ok: true, result };
-          },
-        };
+  const clientTools = useMemo(
+    () => ({
+      ts_konut_hasar_bildirimi_client_tool_dev: async (props) => {
+        console.log("*** props: ", props);
+        try {
+          const payload = {
+            damageDate: props?.damageDate || null,
+            damageTime: props?.damageTime || null,
+            price: props?.price || null,
+            totalPrice: props?.totalPrice || null,
+            damageCause:
+              typeof props?.damageCause === "string"
+                ? JSON.parse(props?.damageCause)
+                : props?.damageCause || null,
+            city: props?.cityid,
+            town: props?.townid,
+            // elabs tarafından gelen ama ts tarafına şimdilik gönderilmeyen iki parametre
+            // cityName: props?.cityname || null,
+            // townName: props?.townname || null,
+            description: props?.description || null,
+          };
+          const result = await handleRedirectTool(payload);
+          return { ok: true, result };
+        } catch (toolError) {
+          const msg = parseError(toolError);
+          dispatchEndCallEvent(buildExceptionEvent(msg));
+          return { ok: false, error: msg };
+        }
+      },
 
-      case "not_repaired":
-        return {
-          ts_konut_hasar_bildirimi_client_tool_onarilmadi_dev: async (
-            props,
-          ) => {
-            console.log("*** props: ", props);
-            const payload = {
-              damageDate: props?.damageDate || null,
-              damageTime: props?.damageTime || null,
-              totalPrice: props?.totalPrice || null,
-              damageReason:
-                typeof props?.damageReason === "string"
-                  ? JSON.parse(props?.damageReason)
-                  : props?.damageReason || null,
-              description: props?.description || null,
-            };
-            const navigationProps = payload;
-            const result = await handleRedirectTool(navigationProps);
-            return { ok: true, result };
-          },
-        };
+      ts_konut_hasar_bildirimi_client_tool_onarildi_dev: async (props) => {
+        console.log("*** props: ", props);
+        try {
+          const payload = {
+            damageDate: props?.damageDate || null,
+            damageTime: props?.damageTime || null,
+            totalPrice: props?.totalPrice || null,
+            damageReason:
+              typeof props?.damageReason === "string"
+                ? JSON.parse(props?.damageReason)
+                : props?.damageReason || null,
+            description: props?.description || null,
+          };
+          const result = await handleRedirectTool(payload);
+          return { ok: true, result };
+        } catch (toolError) {
+          const msg = parseError(toolError);
+          dispatchEndCallEvent(buildExceptionEvent(msg));
+          return { ok: false, error: msg };
+        }
+      },
 
-      default:
-        return {
-          ts_konut_hasar_bildirimi_client_tool_dev: async (props) => {
-            console.log("*** props: ", props);
-            const payload = {
-              damageDate: props?.damageDate || null,
-              damageTime: props?.damageTime || null,
-              price: props?.price || null,
-              totalPrice: props?.totalPrice || null,
-              damageCause:
-                typeof props?.damageCause === "string"
-                  ? JSON.parse(props?.damageCause)
-                  : props?.damageCause || null,
-              city: props?.cityid,
-              town: props?.townid,
-              // elabs tarafından gelen ama ts tarafına şimdilik gönderilmeyen iki parametre
-              // cityName: props?.cityname || null,
-              // townName: props?.townname || null,
-              description: props?.description || null,
-            };
-            const navigationProps = payload;
-            const result = await handleRedirectTool(navigationProps);
-            return { ok: true, result };
-          },
-        };
-    }
-  }, [handleRedirectTool, agentType]);
+      ts_konut_hasar_bildirimi_client_tool_onarilmadi_dev: async (props) => {
+        console.log("*** props: ", props);
+        try {
+          const payload = {
+            damageDate: props?.damageDate || null,
+            damageTime: props?.damageTime || null,
+            totalPrice: props?.totalPrice || null,
+            damageReason:
+              typeof props?.damageReason === "string"
+                ? JSON.parse(props?.damageReason)
+                : props?.damageReason || null,
+            description: props?.description || null,
+          };
+          const result = await handleRedirectTool(payload);
+          return { ok: true, result };
+        } catch (toolError) {
+          const msg = parseError(toolError);
+          dispatchEndCallEvent(buildExceptionEvent(msg));
+          return { ok: false, error: msg };
+        }
+      },
+    }),
+    [handleRedirectTool, dispatchEndCallEvent],
+  );
 
   const handleIncomingEvent = useCallback(
     (event) => {
@@ -432,9 +440,10 @@ function App() {
         if (vadScore > USER_SPEAKING_VAD_THRESHOLD) triggerUserSpeaking();
       },
       onError: (incomingError) => {
-        setError(parseError(incomingError));
+        const msg = parseError(incomingError);
+        setError(msg);
         setIsStarting(false);
-        dispatchEndCallEvent(RN_END_CALL_EXCEPTION_EVENT);
+        dispatchEndCallEvent(buildExceptionEvent(msg));
       },
       onStatusChange: handleStatusChange,
     });
@@ -529,17 +538,14 @@ function App() {
 
     try {
       const payload = userData;
-      const freshSignedUrl = await obtainSignedUrl(payload?.isDamageFixed);
-      if (payload?.isDamageFixed === true) {
-        setAgentType("repaired");
-        setAgentId(import.meta.env.VITE_UNITE_REPAIRED_AGENT_ID);
-      } else if (payload?.isDamageFixed === false) {
-        setAgentType("not_repaired");
-        setAgentId(import.meta.env.VITE_UNITE_NOT_REPAIRED_AGENT_ID);
-      } else {
-        setAgentType("default");
-        setAgentId(import.meta.env.VITE_UNITE_DEFAULT_AGENT_ID);
-      }
+      const derivedAgentId =
+        payload?.isDamageFixed === true
+          ? import.meta.env.VITE_UNITE_REPAIRED_AGENT_ID
+          : payload?.isDamageFixed === false
+            ? import.meta.env.VITE_UNITE_NOT_REPAIRED_AGENT_ID
+            : import.meta.env.VITE_UNITE_DEFAULT_AGENT_ID;
+      setAgentId(derivedAgentId);
+      const freshSignedUrl = await obtainSignedUrl(payload?.isDamageFixed, derivedAgentId);
       if (!freshSignedUrl) {
         setIsStarting(false);
         return;
@@ -555,9 +561,10 @@ function App() {
         },
       });
     } catch (startError) {
-      setError(parseError(startError));
+      const msg = parseError(startError);
+      setError(msg);
       setIsStarting(false);
-      dispatchEndCallEvent(RN_END_CALL_EXCEPTION_EVENT);
+      dispatchEndCallEvent(buildExceptionEvent(msg));
     }
   }, [
     agentConfigured,
