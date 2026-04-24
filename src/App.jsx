@@ -15,9 +15,10 @@ const RN_END_CALL_EVENT = Object.freeze({
 const buildExceptionEvent = (errorMessage) => ({
   type: "end-call",
   eventType: "exception",
-  error: typeof errorMessage === "string" && errorMessage
-    ? errorMessage
-    : "Beklenmeyen bir hata oluştu.",
+  error:
+    typeof errorMessage === "string" && errorMessage
+      ? errorMessage
+      : "Beklenmeyen bir hata oluştu.",
 });
 
 const parseError = (error) => {
@@ -254,79 +255,82 @@ function App() {
     [redirectToCancelPage],
   );
 
-  const clientTools = useMemo(() => ({
-    ts_konut_hasar_bildirimi_client_tool_dev: async (props) => {
-      console.log("*** props: ", props);
-      try {
-        const payload = {
-          damageDate: props?.damageDate || null,
-          damageTime: props?.damageTime || null,
-          price: props?.price || null,
-          totalPrice: props?.totalPrice || null,
-          damageCause:
-            typeof props?.damageCause === "string"
-              ? JSON.parse(props?.damageCause)
-              : props?.damageCause || null,
-          city: props?.cityid,
-          town: props?.townid,
-          // elabs tarafından gelen ama ts tarafına şimdilik gönderilmeyen iki parametre
-          // cityName: props?.cityname || null,
-          // townName: props?.townname || null,
-          description: props?.description || null,
-        };
-        const result = await handleRedirectTool(payload);
-        return { ok: true, result };
-      } catch (toolError) {
-        const msg = parseError(toolError);
-        dispatchEndCallEvent(buildExceptionEvent(msg));
-        return { ok: false, error: msg };
-      }
-    },
+  const clientTools = useMemo(
+    () => ({
+      ts_konut_hasar_bildirimi_client_tool_dev: async (props) => {
+        console.log("*** props: ", props);
+        try {
+          const payload = {
+            damageDate: props?.damageDate || null,
+            damageTime: props?.damageTime || null,
+            price: props?.price || null,
+            totalPrice: props?.totalPrice || null,
+            damageCause:
+              typeof props?.damageCause === "string"
+                ? JSON.parse(props?.damageCause)
+                : props?.damageCause || null,
+            city: props?.cityid,
+            town: props?.townid,
+            // elabs tarafından gelen ama ts tarafına şimdilik gönderilmeyen iki parametre
+            // cityName: props?.cityname || null,
+            // townName: props?.townname || null,
+            description: props?.description || null,
+          };
+          const result = await handleRedirectTool(payload);
+          return { ok: true, result };
+        } catch (toolError) {
+          const msg = parseError(toolError);
+          dispatchEndCallEvent(buildExceptionEvent(msg));
+          return { ok: false, error: msg };
+        }
+      },
 
-    ts_konut_hasar_bildirimi_client_tool_onarildi_dev: async (props) => {
-      console.log("*** props: ", props);
-      try {
-        const payload = {
-          damageDate: props?.damageDate || null,
-          damageTime: props?.damageTime || null,
-          totalPrice: props?.totalPrice || null,
-          damageReason:
-            typeof props?.damageReason === "string"
-              ? JSON.parse(props?.damageReason)
-              : props?.damageReason || null,
-          description: props?.description || null,
-        };
-        const result = await handleRedirectTool(payload);
-        return { ok: true, result };
-      } catch (toolError) {
-        const msg = parseError(toolError);
-        dispatchEndCallEvent(buildExceptionEvent(msg));
-        return { ok: false, error: msg };
-      }
-    },
+      ts_konut_hasar_bildirimi_client_tool_onarildi_dev: async (props) => {
+        console.log("*** props: ", props);
+        try {
+          const payload = {
+            damageDate: props?.damageDate || null,
+            damageTime: props?.damageTime || null,
+            totalPrice: props?.totalPrice || null,
+            damageReason:
+              typeof props?.damageReason === "string"
+                ? JSON.parse(props?.damageReason)
+                : props?.damageReason || null,
+            description: props?.description || null,
+          };
+          const result = await handleRedirectTool(payload);
+          return { ok: true, result };
+        } catch (toolError) {
+          const msg = parseError(toolError);
+          dispatchEndCallEvent(buildExceptionEvent(msg));
+          return { ok: false, error: msg };
+        }
+      },
 
-    ts_konut_hasar_bildirimi_client_tool_onarilmadi_dev: async (props) => {
-      console.log("*** props: ", props);
-      try {
-        const payload = {
-          damageDate: props?.damageDate || null,
-          damageTime: props?.damageTime || null,
-          totalPrice: props?.totalPrice || null,
-          damageReason:
-            typeof props?.damageReason === "string"
-              ? JSON.parse(props?.damageReason)
-              : props?.damageReason || null,
-          description: props?.description || null,
-        };
-        const result = await handleRedirectTool(payload);
-        return { ok: true, result };
-      } catch (toolError) {
-        const msg = parseError(toolError);
-        dispatchEndCallEvent(buildExceptionEvent(msg));
-        return { ok: false, error: msg };
-      }
-    },
-  }), [handleRedirectTool, dispatchEndCallEvent]);
+      ts_konut_hasar_bildirimi_client_tool_onarilmadi_dev: async (props) => {
+        console.log("*** props: ", props);
+        try {
+          const payload = {
+            damageDate: props?.damageDate || null,
+            damageTime: props?.damageTime || null,
+            totalPrice: props?.totalPrice || null,
+            damageReason:
+              typeof props?.damageReason === "string"
+                ? JSON.parse(props?.damageReason)
+                : props?.damageReason || null,
+            description: props?.description || null,
+          };
+          const result = await handleRedirectTool(payload);
+          return { ok: true, result };
+        } catch (toolError) {
+          const msg = parseError(toolError);
+          dispatchEndCallEvent(buildExceptionEvent(msg));
+          return { ok: false, error: msg };
+        }
+      },
+    }),
+    [handleRedirectTool, dispatchEndCallEvent],
+  );
 
   const handleIncomingEvent = useCallback(
     (event) => {
@@ -534,9 +538,9 @@ function App() {
     try {
       const payload = userData;
       const freshSignedUrl = await obtainSignedUrl(payload?.isDamageFixed);
-      if (payload?.isDamageFixed === true) {
+      if (payload?.isDamageFixed === "true") {
         setAgentId(import.meta.env.VITE_UNITE_REPAIRED_AGENT_ID);
-      } else if (payload?.isDamageFixed === false) {
+      } else if (payload?.isDamageFixed === "false") {
         setAgentId(import.meta.env.VITE_UNITE_NOT_REPAIRED_AGENT_ID);
       } else {
         setAgentId(import.meta.env.VITE_UNITE_DEFAULT_AGENT_ID);
