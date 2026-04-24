@@ -12,9 +12,12 @@ const RN_END_CALL_EVENT = Object.freeze({
   type: "end-call",
   eventType: "end_call",
 });
-const RN_END_CALL_EXCEPTION_EVENT = Object.freeze({
+const buildExceptionEvent = (errorMessage) => ({
   type: "end-call",
   eventType: "exception",
+  error: typeof errorMessage === "string" && errorMessage
+    ? errorMessage
+    : "Beklenmeyen bir hata oluştu.",
 });
 
 const parseError = (error) => {
@@ -235,7 +238,7 @@ function App() {
         }
       } catch (fetchError) {
         setError(parseError(fetchError));
-        return null;
+        throw fetchError;
       } finally {
         setIsFetchingSignedUrl(false);
       }
@@ -259,19 +262,24 @@ function App() {
         return {
           ts_konut_hasar_bildirimi_client_tool_onarildi_dev: async (props) => {
             console.log("*** props: ", props);
-            const payload = {
-              damageDate: props?.damageDate || null,
-              damageTime: props?.damageTime || null,
-              totalPrice: props?.totalPrice || null,
-              damageReason:
-                typeof props?.damageReason === "string"
-                  ? JSON.parse(props?.damageReason)
-                  : props?.damageReason || null,
-              description: props?.description || null,
-            };
-            const navigationProps = payload;
-            const result = await handleRedirectTool(navigationProps);
-            return { ok: true, result };
+            try {
+              const payload = {
+                damageDate: props?.damageDate || null,
+                damageTime: props?.damageTime || null,
+                totalPrice: props?.totalPrice || null,
+                damageReason:
+                  typeof props?.damageReason === "string"
+                    ? JSON.parse(props?.damageReason)
+                    : props?.damageReason || null,
+                description: props?.description || null,
+              };
+              const result = await handleRedirectTool(payload);
+              return { ok: true, result };
+            } catch (toolError) {
+              const msg = parseError(toolError);
+              dispatchEndCallEvent(buildExceptionEvent(msg));
+              return { ok: false, error: msg };
+            }
           },
         };
 
@@ -281,19 +289,24 @@ function App() {
             props,
           ) => {
             console.log("*** props: ", props);
-            const payload = {
-              damageDate: props?.damageDate || null,
-              damageTime: props?.damageTime || null,
-              totalPrice: props?.totalPrice || null,
-              damageReason:
-                typeof props?.damageReason === "string"
-                  ? JSON.parse(props?.damageReason)
-                  : props?.damageReason || null,
-              description: props?.description || null,
-            };
-            const navigationProps = payload;
-            const result = await handleRedirectTool(navigationProps);
-            return { ok: true, result };
+            try {
+              const payload = {
+                damageDate: props?.damageDate || null,
+                damageTime: props?.damageTime || null,
+                totalPrice: props?.totalPrice || null,
+                damageReason:
+                  typeof props?.damageReason === "string"
+                    ? JSON.parse(props?.damageReason)
+                    : props?.damageReason || null,
+                description: props?.description || null,
+              };
+              const result = await handleRedirectTool(payload);
+              return { ok: true, result };
+            } catch (toolError) {
+              const msg = parseError(toolError);
+              dispatchEndCallEvent(buildExceptionEvent(msg));
+              return { ok: false, error: msg };
+            }
           },
         };
 
@@ -301,29 +314,34 @@ function App() {
         return {
           ts_konut_hasar_bildirimi_client_tool_dev: async (props) => {
             console.log("*** props: ", props);
-            const payload = {
-              damageDate: props?.damageDate || null,
-              damageTime: props?.damageTime || null,
-              price: props?.price || null,
-              totalPrice: props?.totalPrice || null,
-              damageCause:
-                typeof props?.damageCause === "string"
-                  ? JSON.parse(props?.damageCause)
-                  : props?.damageCause || null,
-              city: props?.cityid,
-              town: props?.townid,
-              // elabs tarafından gelen ama ts tarafına şimdilik gönderilmeyen iki parametre
-              // cityName: props?.cityname || null,
-              // townName: props?.townname || null,
-              description: props?.description || null,
-            };
-            const navigationProps = payload;
-            const result = await handleRedirectTool(navigationProps);
-            return { ok: true, result };
+            try {
+              const payload = {
+                damageDate: props?.damageDate || null,
+                damageTime: props?.damageTime || null,
+                price: props?.price || null,
+                totalPrice: props?.totalPrice || null,
+                damageCause:
+                  typeof props?.damageCause === "string"
+                    ? JSON.parse(props?.damageCause)
+                    : props?.damageCause || null,
+                city: props?.cityid,
+                town: props?.townid,
+                // elabs tarafından gelen ama ts tarafına şimdilik gönderilmeyen iki parametre
+                // cityName: props?.cityname || null,
+                // townName: props?.townname || null,
+                description: props?.description || null,
+              };
+              const result = await handleRedirectTool(payload);
+              return { ok: true, result };
+            } catch (toolError) {
+              const msg = parseError(toolError);
+              dispatchEndCallEvent(buildExceptionEvent(msg));
+              return { ok: false, error: msg };
+            }
           },
         };
     }
-  }, [handleRedirectTool, agentType]);
+  }, [handleRedirectTool, agentType, dispatchEndCallEvent]);
 
   const handleIncomingEvent = useCallback(
     (event) => {
@@ -432,9 +450,10 @@ function App() {
         if (vadScore > USER_SPEAKING_VAD_THRESHOLD) triggerUserSpeaking();
       },
       onError: (incomingError) => {
-        setError(parseError(incomingError));
+        const msg = parseError(incomingError);
+        setError(msg);
         setIsStarting(false);
-        dispatchEndCallEvent(RN_END_CALL_EXCEPTION_EVENT);
+        dispatchEndCallEvent(buildExceptionEvent(msg));
       },
       onStatusChange: handleStatusChange,
     });
@@ -555,9 +574,10 @@ function App() {
         },
       });
     } catch (startError) {
-      setError(parseError(startError));
+      const msg = parseError(startError);
+      setError(msg);
       setIsStarting(false);
-      dispatchEndCallEvent(RN_END_CALL_EXCEPTION_EVENT);
+      dispatchEndCallEvent(buildExceptionEvent(msg));
     }
   }, [
     agentConfigured,
