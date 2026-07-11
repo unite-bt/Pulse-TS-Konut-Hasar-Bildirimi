@@ -30,6 +30,12 @@ body {
   background: #ffffff;
 }
 
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] #root {
+  background: #1a1c1e;
+}
+
 #root {
   width: 100%;
   height: 100%;
