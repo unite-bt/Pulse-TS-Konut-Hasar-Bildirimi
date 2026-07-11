@@ -8,6 +8,12 @@ const USER_SPEAKING_VAD_THRESHOLD = 0.35;
 const USER_SPEAKING_VOLUME_THRESHOLD = 0.02;
 const CONNECTION = "webrtc";
 
+const normalizeTheme = (theme) =>
+  String(theme || "").toLowerCase() === "dark" ? "dark" : "light";
+
+const getThemeFromUrl = () =>
+  new URLSearchParams(window.location.search).get("theme") || "";
+
 const RN_END_CALL_EVENT = Object.freeze({
   type: "end-call",
   eventType: "end_call",
@@ -51,7 +57,16 @@ function App() {
     import.meta.env.VITE_UNITE_DEFAULT_AGENT_ID,
   );
   const [userData, setUserData] = useState({});
+  const [payloadTheme, setPayloadTheme] = useState("");
   console.log("*** user data: ", userData);
+  const initialTheme = useMemo(
+    () => getThemeFromUrl() || document.documentElement.dataset.theme || "",
+    [],
+  );
+  const theme = useMemo(
+    () => normalizeTheme(payloadTheme || initialTheme),
+    [payloadTheme, initialTheme],
+  );
   const [hasRnPayload, setHasRnPayload] = useState(isDevEnv);
   const [isAccessDetermined, setIsAccessDetermined] = useState(isDevEnv);
   const [hasSessionEnded, setHasSessionEnded] = useState(false);
@@ -89,9 +104,20 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.dataset.theme = "dark";
+      return;
+    }
+
+    delete document.documentElement.dataset.theme;
+  }, [theme]);
+
+  useEffect(() => {
     const handleDataFromRN = (event) => {
       const data = event.detail;
       const expectedToken = import.meta.env.VITE_ALLOWED_TOKEN;
+
+      setPayloadTheme(data?.theme || data?.user?.theme || "");
 
       if (!data?.token) {
         setAllowed("yetkisiz erisim");
@@ -662,7 +688,7 @@ function App() {
   if (!shouldShowShell && !shouldShowUnauthorized) return null;
 
   return (
-    <div className={cx("app")}>
+    <div className={cx("app", `app--theme-${theme}`)}>
       {shouldShowShell && (
         <div className="app__background" aria-hidden="true"></div>
       )}

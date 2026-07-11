@@ -5,6 +5,25 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>voice-asistant</title>
+    <script>
+      (() => {
+        const normalizeTheme = (theme) =>
+          String(theme || "").toLowerCase() === "dark" ? "dark" : "";
+
+        const applyTheme = (theme) => {
+          if (normalizeTheme(theme) === "dark") {
+            document.documentElement.dataset.theme = "dark";
+          }
+        };
+
+        applyTheme(new URLSearchParams(window.location.search).get("theme"));
+
+        window.addEventListener("fromReactNative", (event) => {
+          const detail = event.detail || {};
+          applyTheme(detail.theme || detail.user?.theme);
+        });
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

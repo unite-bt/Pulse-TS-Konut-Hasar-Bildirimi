@@ -6,19 +6,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://localhost:5001", // Vite frontend /api isteklerini backend’e yollar
+      "/api": "http://localhost:3000", // Vite frontend /api isteklerini backend'e yollar
+      "/tskonutihbariagent/api": "http://localhost:3000",
     },
-    allowedHosts: [
-      "59249a3b5131.ngrok-free.app",
-      "35d6809d2c70.ngrok-free.app",
-      "fee3c1790881.ngrok-free.app",
-      "pulse.unitebt.com",
-      "localhost",
-      "5b19-88-240-155-173.ngrok-free.app",
-      "https://99c5-85-98-18-181.ngrok-free.app",
-      "localhost:5173",
-      "7833-31-206-203-23.ngrok-free.app",
-    ],
+    allowedHosts: ["pulse.unitebt.com", "localhost", "localhost:5173"],
   },
   build: {
     assetsDir: "assets-damage-forms",

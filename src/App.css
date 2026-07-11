@@ -32,6 +32,63 @@
   position: relative;
   z-index: 1;
 }
+
+.app--theme-dark {
+  background: #1a1c1e;
+  color: #f8fafc;
+}
+
+.app--theme-dark .app__background {
+  background: #1a1c1e;
+}
+
+.app--theme-dark .assistant-shell,
+.app--theme-dark .voice-action-wrapper {
+  background: #1a1c1e;
+}
+
+.app--theme-dark .assistant-shell {
+  border-radius: 0;
+}
+
+.app--theme-dark .assistant-shell__grabber {
+  width: 70px;
+  height: 3px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: #2a2c2e;
+}
+
+.app--theme-dark .assistant-shell__status {
+  color: #ffffff;
+}
+
+.app--theme-dark .voice-ring-primary {
+  border-color: #d8f5fb;
+}
+
+.app--theme-dark .voice-ring-secondary {
+  border-color: #edfaff;
+}
+
+.app--theme-dark .voice-ring-tertiary {
+  border-color: rgba(237, 250, 255, 0.35);
+}
+
+.app--theme-dark .voice-mic {
+  background: linear-gradient(145deg, #edfaff 0%, #d8f5fb 100%);
+}
+
+.app--theme-dark .voice-action {
+  background: #ffffff;
+  color: #1a1c1e;
+}
+
+.app--theme-dark .error-banner {
+  background: rgba(255, 111, 141, 0.18);
+  color: #ffb3bf;
+}
+
 @keyframes driftDots {
   from {
     transform: translate3d(0, 0, 0);
