@@ -284,7 +284,7 @@ function App() {
 
   const clientTools = useMemo(
     () => ({
-      ts_konut_hasar_bildirimi_client_tool_dev: async (props) => {
+      ts_konut_hasar_bildirimi_client_tool_prod: async (props) => {
         console.log("*** props: ", props);
         try {
           const payload = {
@@ -334,7 +334,7 @@ function App() {
         }
       },
 
-      ts_konut_hasar_bildirimi_client_tool_onarilmadi_dev: async (props) => {
+      ts_konut_hasar_bildirimi_client_tool_onarilmadi_prod: async (props) => {
         console.log("*** props: ", props);
         try {
           const payload = {
