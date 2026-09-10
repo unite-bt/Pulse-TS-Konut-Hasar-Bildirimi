@@ -312,7 +312,7 @@ function App() {
         }
       },
 
-      ts_konut_hasar_bildirimi_client_tool_onarildi_dev: async (props) => {
+      ts_konut_hasar_bildirimi_client_tool_onarildi_prod: async (props) => {
         console.log("*** props: ", props);
         try {
           const payload = {
